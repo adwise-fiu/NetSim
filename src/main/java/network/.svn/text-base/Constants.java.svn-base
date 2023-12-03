@@ -1,0 +1,50 @@
+package network;
+
+/**
+ * @author : Fatih Senel
+ *         Date: Nov 18, 2007
+ *         Time: 8:45:42 PM
+ */
+public interface Constants {
+    final double finalx = 2000;
+    final double finaly = 2000;
+    final int FrameWidth = 1000;
+    final int FrameHeight = 700;
+
+    final int ApplicationAreaWidth = 1500;            // For spider use Width=1000 and Height=600, For Festa use W=1500 and H=1500
+    final int ApplicationAreaHeight = 1500;
+    final double ActorTransmissionRange = 25;
+    final double RNTransmissionRange = ActorTransmissionRange;
+    final double ActorActionRange = 45;
+
+    /**
+     * Size of the grid cell
+     */
+    final double squareSize = RNTransmissionRange / 2;
+
+    /**
+     * Labels of Spider
+     */
+    final int FIRST = 1;
+    final int CUT = 2;
+    final int RING_ENTRANCE = 3;
+    final int RING = 4;
+
+    final int Inf = 100000;
+
+    // kLCA Constants
+    final int MAX_N_SEGM = 18;
+    final int MAX_N_SP = MAX_N_SEGM - 2;
+    final int MAX_EL_ST = ((MAX_N_SEGM + MAX_N_SP) * (MAX_N_SEGM + MAX_N_SP - 1) / 2) * 2;
+    final int k_restricted = 3;
+
+    final double err = 0.01;
+
+    final boolean LOG_TRIANGLE = false;
+
+    // number of mobile data collectors
+//    final int MDTC = 5;
+    // number of static relay nodes
+    final int SRN = 1;
+
+}

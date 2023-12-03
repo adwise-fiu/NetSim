@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/95/trunk/%20relay-sensor-placement/src/geometry/delaunay
+END
+Triangulation.java
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/!svn/ver/93/trunk/%20relay-sensor-placement/src/geometry/delaunay/Triangulation.java
+END
+DTAdapter.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/95/trunk/%20relay-sensor-placement/src/geometry/delaunay/DTAdapter.java
+END
+Graph.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/92/trunk/%20relay-sensor-placement/src/geometry/delaunay/Graph.java
+END
+ArraySet.java
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/93/trunk/%20relay-sensor-placement/src/geometry/delaunay/ArraySet.java
+END
+DT_Triangle.java
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/93/trunk/%20relay-sensor-placement/src/geometry/delaunay/DT_Triangle.java
+END
+Pnt.java
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/92/trunk/%20relay-sensor-placement/src/geometry/delaunay/Pnt.java
+END

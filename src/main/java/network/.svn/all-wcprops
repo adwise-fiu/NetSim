@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/130/trunk/%20relay-sensor-placement/src/network
+END
+NetworkNode.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/2/trunk/%20relay-sensor-placement/src/network/NetworkNode.java
+END
+deneme.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/128/trunk/%20relay-sensor-placement/src/network/deneme.java
+END
+Constants.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/130/trunk/%20relay-sensor-placement/src/network/Constants.java
+END
+Edge.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/105/trunk/%20relay-sensor-placement/src/network/Edge.java
+END
+Sensor.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2/trunk/%20relay-sensor-placement/src/network/Sensor.java
+END
+RecursiveTriangle.java
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/98/trunk/%20relay-sensor-placement/src/network/RecursiveTriangle.java
+END
+Triangle.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/102/trunk/%20relay-sensor-placement/src/network/Triangle.java
+END
+Tour.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/118/trunk/%20relay-sensor-placement/src/network/Tour.java
+END
+SensorAndActorNetwork.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/!svn/ver/130/trunk/%20relay-sensor-placement/src/network/SensorAndActorNetwork.java
+END
+Gateway.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/120/trunk/%20relay-sensor-placement/src/network/Gateway.java
+END

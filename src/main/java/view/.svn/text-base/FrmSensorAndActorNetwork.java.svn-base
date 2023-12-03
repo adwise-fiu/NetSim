@@ -1,0 +1,480 @@
+package view;
+
+import network.Constants;
+import network.SensorAndActorNetwork;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+/**
+ * @author : Fatih Senel
+ *         Date: Nov 18, 2007
+ *         Time: 8:32:05 PM
+ */
+public class FrmSensorAndActorNetwork extends JFrame {
+
+    SensorAndActorNetwork network;
+
+    boolean showID = true, dominatorOnly = false, showClusters = false;
+
+    public JCheckBoxMenuItem chkShowDFS = new JCheckBoxMenuItem("Essential Links Only");
+    public JCheckBoxMenuItem chkShowDT = new JCheckBoxMenuItem("Show Delaunay Triangulation");
+    public JCheckBoxMenuItem chkShowMstEdges = new JCheckBoxMenuItem("Show Mst Edges");
+
+    public JCheckBoxMenuItem chkShowSensorEdges = new JCheckBoxMenuItem("Show Sensor Edges", false);
+    public JCheckBoxMenuItem chkShowSensors = new JCheckBoxMenuItem("Show Sensors", false);
+    public JCheckBoxMenuItem chkShowActors = new JCheckBoxMenuItem("Show Actors", true);
+    public JCheckBoxMenuItem chkShowActorEdges = new JCheckBoxMenuItem("Show Actor Edges", true);
+
+    private MainPanel pnlMain;
+
+    private JButton btn1;// = new JButton("Generate");
+    private JButton btn3;// = new JButton("MCDS");
+    private JButton btn4;// = new JButton("MCDS");
+    private JButton btn5;// = new JButton("Network Identification");
+    private JButton btn2;// = new JButton("Replace");
+    private JButton btn6;// = new JButton("Replace");
+    private JButton btn7;// = new JButton("Replace");
+    private JButton btn8;// = new JButton("Replace");
+    private JButton btn9;// = new JButton("Replace");
+
+    private FrmGatewayProperties frmGatewayProperties;
+    private FrmSensorProperties frmSensorProperties;
+    JMenuBar menuBar = new JMenuBar();
+
+    JMenu fileMenu = new JMenu("File");
+    JMenu viewMenu = new JMenu("View");
+    JMenu toolsMenu = new JMenu("Tools");
+
+    JMenuItem fileMenu_LoadNetwork = new JMenuItem("Load Network");
+    JMenuItem fileMenu_LoadIDSResult = new JMenuItem("Load IDS Output");
+    JMenuItem fileMenu_SaveNetwork = new JMenuItem("Save Network");
+    JMenuItem fileMenu_Exit = new JMenuItem("Exit");
+
+    JMenuItem viewMenu_ShowHideGatewayProperties = new JMenuItem("Show Gateway Properties");
+    JMenuItem viewMenu_ShowHideSensorProperties = new JMenuItem("Show Sensor Properties");
+
+    JMenuItem menu3_item1 = new JMenuItem("item1");
+    JMenuItem menu3_item2 = new JMenuItem("item2");
+
+    private boolean showSensors = false;
+    private boolean showActors = true;
+    private boolean showActorEdges = true;
+    private boolean showDT = false;
+    private boolean showMstEdges = false;
+
+    public FrmSensorAndActorNetwork() {
+        network = new SensorAndActorNetwork();
+        frmGatewayProperties = new FrmGatewayProperties();
+        frmSensorProperties = new FrmSensorProperties();
+        setTitle("Wireless Sensor And Actor Network Simulator");
+        initializeButtons();
+        initializeMenu();
+        pnlMain = new MainPanel();
+
+        setLayout(new BorderLayout());
+
+        setSize(Constants.FrameWidth, Constants.FrameHeight);
+
+        getContentPane().add(new JScrollPane(pnlMain), BorderLayout.CENTER);
+
+        JPanel pnlNorth = new JPanel(new GridLayout(0, 1, 5, 5));
+
+        JPanel pnlButtons = new JPanel(new GridLayout(1, 0, 5, 5));
+//        JPanel pnlChkBox = new JPanel(new GridLayout(1, 0, 5, 5));
+        initActionListeners();
+        JPanel pnlButtonsOuter = new JPanel(new FlowLayout(FlowLayout.LEFT));
+//        JPanel pnlChkBoxOuter = new JPanel();
+        pnlButtons.add(btn1);
+        pnlButtons.add(btn2);
+        pnlButtons.add(btn3);
+        pnlButtons.add(btn4);
+        pnlButtons.add(btn5);
+        pnlButtons.add(btn6);
+        pnlButtons.add(btn7);
+        pnlButtons.add(btn8);
+        pnlButtons.add(btn9);
+//        pnlChkBox.add(chkShowDFS);
+//        pnlChkBox.add(chkShowSensors);
+//        pnlChkBox.add(chkShowSensorEdges);
+//        pnlChkBox.add(chkShowActors);
+//        pnlChkBox.add(chkShowActorEdges);
+        pnlButtonsOuter.add(pnlButtons);
+//        pnlChkBoxOuter.add(pnlChkBox);
+        pnlNorth.add(pnlButtonsOuter/*, new GridBagConstraints(0, 0, 1, 1, 1, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0)*/);
+//        pnlNorth.add(pnlChkBoxOuter/*, new GridBagConstraints(0, 0, 1, 1, 1, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0)*/);
+        getContentPane().add(pnlNorth, BorderLayout.NORTH);
+        repaint();
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    private void initializeButtons() {
+        /*ImageIcon generate = new ImageIcon("images/generate.png");
+        ImageIcon two = new ImageIcon("images/two.png");
+        ImageIcon three = new ImageIcon("images/two.png");
+        ImageIcon one = new ImageIcon("images/one.png");
+        ImageIcon identification = new ImageIcon("images/identification.png");
+        ImageIcon forward = new ImageIcon("images/forward.png");*/
+        Properties properties = new Properties();
+        try {
+            properties.load(new FileInputStream("src/view/gui.properties"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        btn1 = new JButton(properties.getProperty("btn1.Text"));// = new JButton("Generate");
+        btn1.setToolTipText(properties.getProperty("btn1.Tooltip"));
+        btn1.setEnabled(Boolean.parseBoolean(properties.getProperty("btn1.Enabled")));
+
+
+        btn2 = new JButton(properties.getProperty("btn2.Text"));// = new JButton("Replace");
+        btn2.setToolTipText(properties.getProperty("btn2.Tooltip"));
+        btn2.setEnabled(Boolean.parseBoolean(properties.getProperty("btn2.Enabled")));
+
+        btn3 = new JButton(properties.getProperty("btn3.Text"));
+        btn3.setToolTipText(properties.getProperty("btn3.Tooltip"));
+        btn3.setEnabled(Boolean.parseBoolean(properties.getProperty("btn3.Enabled")));
+
+        btn4 = new JButton(properties.getProperty("btn4.Text"));// = new JButton("MCDS");
+        btn4.setToolTipText(properties.getProperty("btn4.Tooltip"));
+        btn4.setEnabled(Boolean.parseBoolean(properties.getProperty("btn4.Enabled")));
+
+        btn5 = new JButton(properties.getProperty("btn5.Text"));
+        btn5.setToolTipText(properties.getProperty("btn5.Tooltip"));
+        btn5.setEnabled(Boolean.parseBoolean(properties.getProperty("btn5.Enabled")));
+
+        btn6 = new JButton(properties.getProperty("btn6.Text"));
+        btn6.setToolTipText(properties.getProperty("btn6.Tooltip"));
+        btn6.setEnabled(Boolean.parseBoolean(properties.getProperty("btn6.Enabled")));
+
+        btn7 = new JButton(properties.getProperty("btn7.Text"));
+        btn7.setToolTipText(properties.getProperty("btn7.Tooltip"));
+        btn7.setEnabled(Boolean.parseBoolean(properties.getProperty("btn7.Enabled")));
+
+        btn8 = new JButton(properties.getProperty("btn8.Text"));
+        btn8.setToolTipText(properties.getProperty("btn8.Tooltip"));
+        btn8.setEnabled(Boolean.parseBoolean(properties.getProperty("btn8.Enabled")));
+
+        btn9 = new JButton(properties.getProperty("btn9.Text"));
+        btn9.setToolTipText(properties.getProperty("btn9.Tooltip"));
+        btn9.setEnabled(Boolean.parseBoolean(properties.getProperty("btn9.Enabled")));
+
+
+    }
+
+    private void initializeMenu() {
+        fileMenu.add(fileMenu_LoadNetwork);
+        fileMenu_LoadNetwork.addActionListener(new MenuActionEventHandler());
+        fileMenu.add(fileMenu_LoadIDSResult);
+        fileMenu_LoadIDSResult.addActionListener(new MenuActionEventHandler());
+        fileMenu.add(fileMenu_SaveNetwork);
+        fileMenu_SaveNetwork.addActionListener(new MenuActionEventHandler());
+        fileMenu.add(fileMenu_Exit);
+        fileMenu_Exit.addActionListener(new MenuActionEventHandler());
+
+        viewMenu.add(viewMenu_ShowHideGatewayProperties);
+        viewMenu.add(viewMenu_ShowHideSensorProperties);
+        viewMenu_ShowHideGatewayProperties.addActionListener(new MenuActionEventHandler());
+        viewMenu_ShowHideSensorProperties.addActionListener(new MenuActionEventHandler());
+        viewMenu.addSeparator();
+        viewMenu.add(chkShowDFS);
+        viewMenu.add(chkShowSensors);
+        viewMenu.add(chkShowSensorEdges);
+        viewMenu.add(chkShowActors);
+        viewMenu.add(chkShowActorEdges);
+        viewMenu.add(chkShowDT);
+        viewMenu.add(chkShowMstEdges);
+
+
+        toolsMenu.add(menu3_item1);
+        menu3_item1.addActionListener(new MenuActionEventHandler());
+        toolsMenu.add(menu3_item2);
+        menu3_item2.addActionListener(new MenuActionEventHandler());
+
+        menuBar.add(fileMenu);
+        menuBar.add(viewMenu);
+        menuBar.add(toolsMenu);
+        setJMenuBar(menuBar);
+
+    }
+
+    public void refresh() {
+//        pnlMain.repaint();
+
+        repaint();
+        Thread thread = new Thread() {
+            public void run() {
+                try {
+                    Thread.sleep(1000); // wait 1 second...
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+//                        makeComputerMove();
+                        repaint();
+                    }
+                });
+
+            }
+        };
+        thread.start();
+    }
+
+    private void initActionListeners() {
+        btn1.addActionListener(new ButtonActionEventHandler());
+        btn3.addActionListener(new ButtonActionEventHandler());
+        btn4.addActionListener(new ButtonActionEventHandler());
+        btn5.addActionListener(new ButtonActionEventHandler());
+        btn2.addActionListener(new ButtonActionEventHandler());
+        btn6.addActionListener(new ButtonActionEventHandler());
+        btn7.addActionListener(new ButtonActionEventHandler());
+        btn8.addActionListener(new ButtonActionEventHandler());
+        btn9.addActionListener(new ButtonActionEventHandler());
+        chkShowDFS.addActionListener(new ButtonActionEventHandler());
+        chkShowSensorEdges.addActionListener(new ButtonActionEventHandler());
+        chkShowSensors.addActionListener(new ButtonActionEventHandler());
+        chkShowActors.addActionListener(new ButtonActionEventHandler());
+        chkShowActorEdges.addActionListener(new ButtonActionEventHandler());
+        chkShowDT.addActionListener(new ButtonActionEventHandler());
+        chkShowMstEdges.addActionListener(new ButtonActionEventHandler());
+    }
+
+    public static void main(String[] args) {
+        new FrmSensorAndActorNetwork().setVisible(true);
+        System.out.println("the end");
+    }
+
+    public void btnRecalculateActionPerformed() {
+        JFrame frm = new FrmPartitionedSegmentGenerator(network, this);
+        frm.setVisible(true);
+        refresh();
+    }
+
+    private class ButtonActionEventHandler implements ActionListener {
+        String testFilenane = "10_88.dat";   //15-20
+
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() == btn1) {
+                boolean testall = false;
+                if (testall) {
+
+                    for (int p = 3; p <= 15; p++) {
+                        for (int ex = 1; ex <= 50; ex++) {
+                        }
+                    }
+
+                } else {
+//                    network.generateExperimentData();
+//                    testFilenane = "15_24.dat";
+//                    System.out.println(testFilenane);
+//                    network.reload(testFilenane);
+//                    network.runDelaunayTriangulationApproach(true);
+//                    network.runDTMSTApproach(true);
+//                    network.run_DT_MST_DT_Approach(true);
+//                    network.report();
+                    network.startExperiment();
+
+
+//                    String[] names = {"7_63", "14_4", "14_50", "14_61", "15_90", "17_44", "17_91", "18_22", "19_23", "22_23", "24_32", "24_48", "24_97", "25_79"};
+//                    for (int i = 0; i < names.length; i++) {
+//                        String[] tokens = names[i].split("_");
+//                        int partition = Integer.parseInt(tokens[0]);
+//                        int id = Integer.parseInt(tokens[1]);
+//                        System.out.println(names[i] + ".dat is fixed");
+////                        network.fix(partition, id);
+////                        network.reload(names[i] + ".dat");
+//                    }
+//                    network.create50Samples();
+//                    network.fix(22,23);
+//                    network.reload(testFilenane);
+//                    network.run_MST_DT_MST_Approach();
+//                    network.runTriangleAproach3();
+//                    System.out.println(testFilenane + " is loaded");
+//                    network.runIterativeMSTTriangulationApproach(1);
+//                    network.runMSTDTApproach();
+//                    network.runTriangleAproach3();
+//                    network.report();
+//                    network.secondDTApproach();
+//                    network.analyzeMstEdgeMap(testFilenane, 0.25, false);
+//                    System.out.println("Original MST-DT\n--------------------------------");
+//                    network.report();
+//                    System.out.println("Simulation Started ...");
+//                    network.startExperiment();
+                }
+
+                refresh();
+
+            } else if (e.getSource() == btn2) {
+                network.reload(testFilenane);
+                network.runSMST2();
+                System.out.println("SMST");
+                network.report();
+                refresh();
+            } else if (e.getSource() == btn3) {
+                network.reload(testFilenane);
+                network.runMSTDTApproach(true);
+                System.out.println("MST-DT");
+                network.report();
+                refresh();
+            } else if (e.getSource() == btn4) {
+                network.reload(testFilenane);
+                network.runMSTTriangulationApproach(true);
+                System.out.println("MST-Only");
+                network.report();
+                refresh();
+            } else if (e.getSource() == btn5) {
+                network.reload(testFilenane);
+                network.runDelaunayTriangulationApproach(true);
+                System.out.println("DT-Only");
+                network.report();
+                refresh();
+                frmGatewayProperties.refresh();
+                frmSensorProperties.refresh();
+            } else if (e.getSource() == btn6) {
+                network.report();
+                refresh();
+                frmGatewayProperties.refresh();
+                frmSensorProperties.refresh();
+            } else if (e.getSource() == btn7) {
+                network.save();
+                refresh();
+            } else if (e.getSource() == btn8) {
+                network.reload("15_25.dat");
+                refresh();
+            } else if (e.getSource() == btn9) {
+                network.reload(testFilenane);
+                network.runDTMSTApproach(true);
+                System.out.println("DT-MST");
+                network.report();
+                refresh();
+            } else if (e.getSource() == chkShowDFS) {
+                dominatorOnly = chkShowDFS.isSelected();
+                refresh();
+            } else if (e.getSource() == chkShowSensorEdges) {
+                showClusters = chkShowSensorEdges.isSelected();
+                refresh();
+            } else if (e.getSource() == chkShowSensors) {
+                chkShowSensorEdges.setEnabled(chkShowSensors.isSelected());
+                showSensors = chkShowSensors.isSelected();
+                refresh();
+            } else if (e.getSource() == chkShowActors) {
+                chkShowActorEdges.setEnabled(chkShowActors.isSelected());
+                showActors = chkShowActors.isSelected();
+                refresh();
+            } else if (e.getSource() == chkShowActorEdges) {
+                showActorEdges = chkShowActorEdges.isSelected();
+                refresh();
+            } else if (e.getSource() == chkShowDT) {
+                showDT = chkShowDT.isSelected();
+                refresh();
+            } else if (e.getSource() == chkShowMstEdges) {
+                showMstEdges = chkShowMstEdges.isSelected();
+                refresh();
+            }
+        }
+    }
+
+    private class MenuActionEventHandler implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            Object source = e.getSource();
+            if (source == fileMenu_LoadNetwork) {
+                System.out.println("menu 1 item 1 clicked");
+            } else if (source == fileMenu_LoadIDSResult) {
+                JFileChooser fc = new JFileChooser("./set1/");
+                int returnVal = fc.showSaveDialog(FrmSensorAndActorNetwork.this);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = fc.getSelectedFile();
+                    network.loadIDSOutput(file);
+                    refresh();
+                }
+            } else if (source == fileMenu_SaveNetwork) {
+            } else if (source == fileMenu_Exit) {
+                System.exit(0);
+            } else if (source == viewMenu_ShowHideGatewayProperties) {
+                if (viewMenu_ShowHideGatewayProperties.getText().equalsIgnoreCase("Show Gateway Properties")) {
+                    frmGatewayProperties.setVisible(true);
+                    viewMenu_ShowHideGatewayProperties.setText("Hide Gateway Properties");
+                } else if (viewMenu_ShowHideGatewayProperties.getText().equalsIgnoreCase("Hide Gateway Properties")) {
+                    frmGatewayProperties.setVisible(false);
+                    viewMenu_ShowHideGatewayProperties.setText("Show Gateway Properties");
+                }
+            } else if (source == viewMenu_ShowHideSensorProperties) {
+                if (viewMenu_ShowHideSensorProperties.getText().equalsIgnoreCase("Show Sensor Properties")) {
+                    frmSensorProperties.setVisible(true);
+                    viewMenu_ShowHideSensorProperties.setText("Hide Sensor Properties");
+                } else if (viewMenu_ShowHideSensorProperties.getText().equalsIgnoreCase("Hide Sensor Properties")) {
+                    frmSensorProperties.setVisible(false);
+                    viewMenu_ShowHideSensorProperties.setText("Show Sensor Properties");
+                }
+            } else if (source == menu3_item1) {
+            } else if (source == menu3_item2) {
+            }
+        }
+    }
+
+    private class MainPanel extends JPanel {
+
+
+        public MainPanel() {
+
+            addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e) {
+//                    int clickCount = e.getClickCount();
+                    int index = network.toggleGatewayMouseOver(e.getX(), e.getY());
+                    refresh();
+                    if (index != -1) {
+                        frmSensorProperties.setNode(null);
+                        frmGatewayProperties.setNode(network.getGateway(index));
+                    } else {
+                        frmGatewayProperties.setNode(null);
+                        int snsIndex = network.toggleSensorMouseOver(e.getX(), e.getY());
+                        if (snsIndex != -1) {
+                            frmSensorProperties.setNode(network.getSensor(snsIndex));
+                        } else {
+                            frmSensorProperties.setNode(null);
+                        }
+                    }
+
+                }
+
+                public void mousePressed(MouseEvent e) {
+                }
+
+
+                public void mouseReleased(MouseEvent e) {
+                }
+
+
+            });
+        }
+
+        public void paintComponent(Graphics g) {
+            if (showActors) {
+                network.drawActors(g, showActorEdges, showID, dominatorOnly);
+                network.drawTours(g);
+//                network.drawCoM(g);
+//                network.drawOuterPolygon(g);
+//                network.drawGrid(g);
+//                network.drawMSTEdges(g);
+//                network.drawDelaunay(g);
+            }
+            if (showDT) {
+                network.drawDelaunay(g);
+            }
+            if (showMstEdges) {
+                network.drawMSTEdges(g);
+            }
+            if (showSensors)
+                network.drawSensors(g, showClusters);
+        }
+    }
+}

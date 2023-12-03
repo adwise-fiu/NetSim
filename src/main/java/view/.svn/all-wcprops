@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/130/trunk/%20relay-sensor-placement/src/view
+END
+FrmSensorProperties.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/2/trunk/%20relay-sensor-placement/src/view/FrmSensorProperties.java
+END
+gui.properties
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/125/trunk/%20relay-sensor-placement/src/view/gui.properties
+END
+FrmPartitionedSegmentGenerator.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/!svn/ver/15/trunk/%20relay-sensor-placement/src/view/FrmPartitionedSegmentGenerator.java
+END
+FrmGatewayProperties.java
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/12/trunk/%20relay-sensor-placement/src/view/FrmGatewayProperties.java
+END
+FrmSensorAndActorNetwork.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/!svn/ver/130/trunk/%20relay-sensor-placement/src/view/FrmSensorAndActorNetwork.java
+END
