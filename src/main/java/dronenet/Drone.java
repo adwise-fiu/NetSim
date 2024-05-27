@@ -4,8 +4,7 @@ import geometry.AnalyticGeometry;
 import network.Gateway;
 import network.NetworkNode;
 
-import java.awt.Graphics;
-import java.awt.Color;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -107,11 +106,17 @@ public class Drone extends Gateway {
 
 
     public void drawState(Graphics g, int tr, int left, int top, double scale) {
-        g.setColor(Color.RED);
+
+        Graphics2D g2d = (Graphics2D) g;
+        BasicStroke originalStroke = (BasicStroke) g2d.getStroke();
+        g2d.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{5, 5}, 0));
+        g2d.setColor(Color.RED);
+
         int radius = diameter * 3;
         int x = (int) (left + scale * this.x - radius / 2);
         int y = (int) (top + scale * this.y - radius / 2);
         g.drawOval(x, y, radius, radius);
+        g2d.setStroke(originalStroke);
 
     }
 
@@ -152,8 +157,7 @@ public class Drone extends Gateway {
     public String toString() {
 
         return "Drone{" +
-                "incoming=" + (incoming == null ? "null" : incoming.getID()) +
-                ", outgoing=" + outgoing.stream().map(NetworkNode::getID).collect(Collectors.toList()) +
+                "neighbors=" + neighborList.stream().map(NetworkNode::getID).collect(Collectors.toList()) +
                 ", x=" + x +
                 ", y=" + y +
                 ", id=" + id +

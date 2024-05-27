@@ -13,6 +13,7 @@ import utils.NetworkUtils;
 
 import java.awt.geom.Point2D;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -21,6 +22,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static network.Constants.maxDroneSpeed;
 
 
 /**
@@ -31,7 +34,6 @@ import java.util.stream.Stream;
 public class DroneMobilitySimulation {
     static String solverOutputPathString = "experiment_data/";
     DeploymentDto dto;
-    public static double maxDroneSpeed = 20.83; // 75km/h ~= 1250 meter/minutes = 20.83 m/s
 
     DroneMobilitySimulation(String pathname) throws IOException {
         dto = DeploymentDto.getFromFileName(solverOutputPathString, pathname);
@@ -118,28 +120,27 @@ public class DroneMobilitySimulation {
             int id = Integer.parseInt(pathname.split("_")[0].substring(5));
 
             long l = System.currentTimeMillis();
-            CoverageReachability coverageReachability = minimizeTotalMovementMatchingMovement(pathname);
+//            CoverageReachability coverageReachability = minimizeTotalMovementMatchingMovement(pathname);
 //            CoverageReachability coverageReachability = bottleneckAssignmentMovement(pathname, fixedVelocity, varyingVelocity, hoovering);
-            System.out.println("\n**************************");
+
+            CoverageReachabilityGuessed coverageReachability = moveByGuessedSchedule(pathname);
+
+
+//            System.out.println("\n**************************");
             System.out.println(pathname + " Elapsed: " + (System.currentTimeMillis() - l) / 1000);
             System.out.println("**************************");
+            /*
             if (coverageReachability == null) {
                 continue;
             }
-            bottleneck.put(pathname, coverageReachability);
-//            splittedSnakeFixed.put(pathname, snakeMovement(pathname));
+            bottleneck.put(pathname, coverageReachability);*/
 
 
         }
-//        CoverageReachability avgFixed = getCoverageReachabilityAverage(fixedVelocity);
-//        CoverageReachability avgVarying = getCoverageReachabilityAverage(varyingVelocity);
-//        CoverageReachability avgHoovering = getCoverageReachabilityAverage(hoovering);
-//        printToCSV("bottleneck-assignment-connectivity/fixed_bottleneck.csv", avgFixed.reachability, avgFixed.coverage);
 
-//        CoverageReachability avg = getCoverageReachabilityAverage(splittedSnakeFixed.values());
-        CoverageReachability avg = getCoverageReachabilityAverage(bottleneck.values());
+       /* CoverageReachability avg = getCoverageReachabilityAverage(bottleneck.values());
         printToCSV("bottleneck-assignment-connectivity/bottleneck_block_move_5.csv", avg.reachability, avg.coverage);
-        System.out.println("DONE-- fixedVelocity.size()=" + avg.coverage.entrySet().size());
+        System.out.println("DONE-- fixedVelocity.size()=" + avg.coverage.entrySet().size());*/
     }
 
 
@@ -590,7 +591,7 @@ public class DroneMobilitySimulation {
     }
 
     /**
-     * This will use Min Sum Matching Model
+     * This uses Min Sum Matching Model
      *
      * @param pathname
      * @param droneNet
@@ -1403,6 +1404,152 @@ public class DroneMobilitySimulation {
         int f = 1;
         for (int i = 1; i <= n; i++) f *= i;
         return f;
+
+    }
+
+
+    public static CoverageReachabilityGuessed moveByGuessedSchedule(String pathname) throws IOException {
+        MinimizeTotalMovementMatchingModel solver = new MinimizeTotalMovementMatchingModel();
+        DroneMobilitySimulation droneMobilitySimulation = new DroneMobilitySimulation(pathname);
+        DroneNet droneNet = droneMobilitySimulation.dto.droneNet;
+        droneNet.fixOverlap();
+        List<SolverOutputDto> solverOutputDtoList = droneNet.getSolverOutputDtoList();
+        int timeIntervalMinute = solverOutputDtoList.get(0).getConfiguration().getTimeInterval();
+        int transmissionRange = solverOutputDtoList.get(0).getConfiguration().getTransmissionRange();
+        List<Velocity[]> velocityVectors = new ArrayList<>();
+
+        for (int i = 0; i < droneNet.getListofTimeIndexedDrones().size() - 1; i++) {
+            List<Drone> A = droneNet.getListofTimeIndexedDrones().get(i);
+            List<Drone> B = droneNet.getListofTimeIndexedDrones().get(i + 1);
+            if (A.size() != B.size()) {
+                velocityVectors.add(null);
+                continue;
+            }
+            List<Drone> matched = solver.doMatching(A, B);
+            droneNet.getListofTimeIndexedDrones().set(i + 1, matched);
+            if (matched == null || A.size() != matched.size()) {
+                continue;
+            }
+            NetworkUtils.calculateActorNeighborhoods(matched
+                    , transmissionRange);
+            droneNet.getListofTimeIndexedDrones().set(i + 1, matched);
+        }
+        String matching = "min-sum/";
+        List<String> optimalSchedule = getOptimalSchedule(matching, pathname);
+        CoverageReachability coverageReachability = new CoverageReachability();
+        List<String> schedules = new ArrayList<>();
+        for (int i = 0; i < droneNet.getListofTimeIndexedDrones().size() - 1; i++) {
+            List<Drone> source = droneNet.getListofTimeIndexedDrones().get(i);
+            List<Drone> dest = droneNet.getListofTimeIndexedDrones().get(i + 1);
+            DroneMobilityScheduleGuess droneMobilityScheduleGuess =
+                    new DroneMobilityScheduleGuess(source, dest, transmissionRange);
+            List<Path> paths = droneMobilityScheduleGuess.guessASchedule();
+            List<Integer> collect = paths.stream().map(u -> u.id).collect(Collectors.toList());
+            StringBuilder guessedPath = new StringBuilder();
+            for (Integer integer : collect) {
+                guessedPath.append(integer).append("-");
+            }
+
+
+            StringBuilder sb = new StringBuilder();
+            Set<Integer> movingSet = new HashSet<>();
+            for (Path path : paths) {
+                sb.append(path.id).append("-");
+                movingSet.add(path.id);
+            }
+            for (Drone drone : source) {
+                if (!movingSet.contains(drone.getID())) {
+                    sb.append(drone.getID()).append("-");
+                    movingSet.add(drone.getID());
+                }
+            }
+            String schedule = sb.toString();
+            schedule = schedule.substring(0, schedule.length() - 1);
+            schedules.add(schedule);
+
+            ArrayList<Gateway> movingDrones = new ArrayList<>();
+            for (Drone drone : source) {
+                Drone nd = new Drone(drone.getID());
+                nd.setLocation(drone.getPoint2D());
+                movingDrones.add(nd);
+            }
+            droneMobilitySimulation.move(
+                    movingDrones,
+                    paths,
+                    i, transmissionRange, coverageReachability);
+
+        }
+        CoverageReachabilityGuessed result = new CoverageReachabilityGuessed(coverageReachability, schedules);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            // Serialize the object to a JSON file
+            objectMapper.writeValue(new File("scheduled/guessed/" + pathname), result);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    private void move(ArrayList<Gateway> movingDrones,
+                      List<Path> paths,
+                      int timeStage,
+                      int transmissionRange,
+                      CoverageReachability coverageReachability) {
+//        Map<Double, Double> timeCoverageMap = new HashMap<>();
+//        Map<Double, Double> timeConnectivityMap = new HashMap<>();
+        int transformationTime = getTime(paths);
+        int nextPath = 0;
+        int nextWaypoint = 1;
+        int k = 0;
+        for (int t = 0; t < 1200; t++) {
+            double time = (timeStage * 20) + (t / 60d);
+            if (t >= 1200 - transformationTime) {
+                Path path = paths.get(nextPath);
+                Gateway drone = movingDrones.get(path.id);
+                Point2D nextLoc = AnalyticGeometry.getCoordinates(drone.getPoint2D(), path.waypoints.get(nextWaypoint), maxDroneSpeed);
+                drone.setLocation(nextLoc);
+                if (nextLoc.equals(path.waypoints.get(nextWaypoint))) {
+                    if (path.waypoints.size() - 1 == nextWaypoint) {
+                        nextWaypoint = 1;
+                        nextPath++;
+                    } else {
+                        nextWaypoint++;
+                    }
+                }
+
+                NetworkUtils.calculateActorNeighborhoods(movingDrones, transmissionRange);
+            }
+            coverageReachability.getReachability().put(time, NetworkUtils.calculateConnectivityMeasure(movingDrones, transmissionRange));
+            coverageReachability.getCoverage().put(time, calculateCoverage(movingDrones, time, transmissionRange));
+        }
+    }
+
+    public static int getTime(List<Path> paths) {
+        int time = 0;
+        for (Path path : paths) {
+            for (int i = 0; i < path.waypoints.size() - 1; i++) {
+                Point2D from = path.waypoints.get(i);
+                Point2D to = path.waypoints.get(i + 1);
+                double distance = AnalyticGeometry.euclideanDistance(from, to);
+                time += Math.ceil(distance / maxDroneSpeed);
+            }
+        }
+        return time;
+    }
+
+    public static List<String> getOptimalSchedule(String matching, String filename) {
+        String path = "scheduled/" + matching + filename;
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            CoverageReachabilityPermutationArrays yourObject = objectMapper.readValue(new File(path), CoverageReachabilityPermutationArrays.class);
+            return Arrays.stream(yourObject.getAvg()).map(CoverageReachabilityPermutation::getPermutation).collect(Collectors.toList());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+
 
     }
 

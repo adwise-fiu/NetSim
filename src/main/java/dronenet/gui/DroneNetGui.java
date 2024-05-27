@@ -21,6 +21,8 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static network.Constants.maxDroneSpeed;
+
 /**
  * @author fatihsenel
  * date: 07.04.22
@@ -742,7 +744,7 @@ public class DroneNetGui extends JFrame {
 
         Map<Double, Double> timeCoverageMap = new HashMap<>();
         Map<Double, Double> timeConnectivityMap = new HashMap<>();
-        int[] transformationTimes = Arrays.stream(velocities).mapToInt(u -> (int) Math.ceil(AnalyticGeometry.euclideanDistance(u.start, u.end) / DroneMobilitySimulation.maxDroneSpeed)).toArray();
+        int[] transformationTimes = Arrays.stream(velocities).mapToInt(u -> (int) Math.ceil(AnalyticGeometry.euclideanDistance(u.start, u.end) / maxDroneSpeed)).toArray();
         int maxTransformationTimeInSeconds = Arrays.stream(transformationTimes).sum();
         int next = 0;
         int k = 0;
@@ -759,7 +761,7 @@ public class DroneNetGui extends JFrame {
                 transformationTimes[next]--;
                 double d = AnalyticGeometry.euclideanDistance(drone.getX(), drone.getY(), velocities[next].end.getX(), velocities[next].end.getY());
                 if (!DoubleUtils.equals(d, 0)) {
-                    double distance = DroneMobilitySimulation.maxDroneSpeed * k;
+                    double distance = maxDroneSpeed * k;
                     java.awt.geom.Point2D coordinates = AnalyticGeometry.getCoordinates(velocities[next].start, velocities[next].end, distance);
                     drone.setLocation(coordinates);
                     NetworkUtils.calculateActorNeighborhoods(droneNet.getListofTimeIndexedDrones().get(timeStage), transmissionRange);

@@ -26,6 +26,7 @@ public class BottleneckAssignmentMatchingModel implements MatchingModel{
             int n = A.size();
             IloCplex cplex = new IloCplex();
             cplex.setOut(null);
+
 //            IloNumVar theta = cplex.
             IloNumVar theta = cplex.numVar(0, Double.MAX_VALUE);
             IloIntVar[][] x = new IloIntVar[n][n];

@@ -158,12 +158,12 @@ public class NetworkUtils {
         }
     }
 
-    public static boolean isConnected(ArrayList<Gateway> nodes) {
+    public static boolean isConnected(ArrayList<? extends Gateway> nodes) {
         ArrayList<ArrayList<Gateway>> partitions = DephtFirstSearch(nodes);
         return partitions.size() == 1;
     }
 
-    public static ArrayList<ArrayList<Gateway>> DephtFirstSearch(ArrayList<Gateway> ActorsArray) {
+    public static ArrayList<ArrayList<Gateway>> DephtFirstSearch(List<? extends Gateway> ActorsArray) {
         ArrayList<ArrayList<Gateway>> partitions = new ArrayList<ArrayList<Gateway>>();
         for (int j = 0; j < ActorsArray.size(); j++) {
             ActorsArray.get(j).color = Color.WHITE;
@@ -1127,7 +1127,7 @@ public class NetworkUtils {
 
     }
 
-    public static double calculateConnectivityMeasure(ArrayList<Gateway> list, double transmissionRange) {
+    public static double calculateConnectivityMeasure(List<? extends Gateway> list, double transmissionRange) {
         calculateActorNeighborhoods(list, transmissionRange);
         ArrayList<ArrayList<Gateway>> partitions = DephtFirstSearch(list);
         Map<Gateway, Integer> partitionMap = new HashMap<>();
